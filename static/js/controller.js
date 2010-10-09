@@ -17,6 +17,19 @@ AuralSex = {
             autoExpandColumn: 'title',
             view: new Ext.ux.grid.BufferView({scrollDelay: false})
         });
+		AuralSex.VolumeSlider = new Ext.Slider({
+			id: 'volume-slider',
+            width: 100,
+            increment: 1,
+            minValue: 0,
+            maxValue: 10,
+            disabled: true,
+			listeners: {
+				change: function(slider) {
+					AuralSex.SetVolume(slider.getValue())
+				}
+			}
+        });
         AuralSex.Viewport = new Ext.Viewport({
             layout:'border',
             items:[{
@@ -50,14 +63,7 @@ AuralSex = {
                         listeners: {
                             click: AuralSex.Next
                         }
-                    }, '->', 'Volume: ', {
-                        xtype: 'slider',
-                        width: 100,
-                        increment: 1,
-                        minValue: 0,
-                        maxValue: 10,
-                        disabled: true
-                    },' ', {
+                    }, '->', 'Volume: ', AuralSex.VolumeSlider, ' ', {
                         xtype: 'textfield',
                         emptyText: "Search",
                         id: 'search-field'
@@ -87,28 +93,46 @@ AuralSex = {
             } else {
                 AuralSex.SongStore.removeAll();
             }
-        })
+        });
+
+		// Look up the current volume
+		AuralSex.GetVolume(function(volume) {
+			AuralSex.VolumeSlider.setValue(volume, false);
+			AuralSex.VolumeSlider.setDisabled(false);
+		});
     },
     
     Stop: function() {
-        new Ajax.Request("/api/stop/" + AURALSEX_ZONE)
+        new Ajax.Request("/api/stop/" + AURALSEX_ZONE);
     },
     
     Pause: function() {
-        new Ajax.Request("/api/pause/" + AURALSEX_ZONE)
+        new Ajax.Request("/api/pause/" + AURALSEX_ZONE);
     },
     
     Play: function() {
-        new Ajax.Request("/api/play/" + AURALSEX_ZONE)
+        new Ajax.Request("/api/play/" + AURALSEX_ZONE);
     },
     
     Next: function() {
-        new Ajax.Request("/api/skip/" + AURALSEX_ZONE)
+        new Ajax.Request("/api/skip/" + AURALSEX_ZONE);
     },
     
     Back: function() {
-        new Ajax.Request("/api/back/" + AURALSEX_ZONE)
-    }
+        new Ajax.Request("/api/back/" + AURALSEX_ZONE);
+    },
+
+	GetVolume: function(callback) {
+		new Ajax.Request("/api/volume/" + AURALSEX_ZONE, {
+			onSuccess: function(response) {
+				callback(response.responseJSON.volume);
+			}
+		});
+	},
+	
+	SetVolume: function(volume) {
+		new Ajax.Request("/api/volume/" + AURALSEX_ZONE + "?volume=" + volume);
+	}
 }
 
 Ext.onReady(AuralSex.init)

@@ -69,4 +69,14 @@ class AuralAPI(object):
     @cherrypy.expose
     def back(self, zone):
         return "{success: %s}" % self.command(zone, "back")
+    
+    @cherrypy.expose
+    def volume(self, zone, **args):
+        if 'volume' in args:
+            url = 'http://%s/volume?volume=%s' % (zones.zones[zone], int(args['volume']))
+        else:
+            url = 'http://%s/volume' % zones.zones[zone]
+        volume = int(urllib2.urlopen(url).read())
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return "{volume: %s}" % volume
         
