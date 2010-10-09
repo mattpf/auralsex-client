@@ -5,6 +5,10 @@
     </head>
     <body>
         <h1>Aural Sex control</h1>
-        <p>Blah blah blah control aural sex here.</p>
+        <div id="zone_list">
+            #for $zone in $zones:
+            <li><a href="/control/$zone">$zone</a></li>
+            #end for
+        </div>
     </body>
 </html>
