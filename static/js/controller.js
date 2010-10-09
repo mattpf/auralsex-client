@@ -15,7 +15,14 @@ AuralSex = {
             ],
             stripeRows: true,
             autoExpandColumn: 'title',
-            view: new Ext.ux.grid.BufferView({scrollDelay: false})
+            emptyText: "Search for something!",
+            deferEmptyText: false,
+            view: new Ext.ux.grid.BufferView({scrollDelay: false}),
+            listeners: {
+                rowdblclick: function(self, rowIndex) {
+                    AuralSex.Play(AuralSex.SongStore.getAt(rowIndex).get('id'))
+                }
+            }
         });
 		AuralSex.VolumeSlider = new Ext.Slider({
 			id: 'volume-slider',
@@ -39,19 +46,9 @@ AuralSex = {
                 items: [new Ext.Toolbar({
                     border: false,
                     items: [{
-                        text: 'Play',
-                        listeners: {
-                            click: AuralSex.Play
-                        }
-                    }, {
-                        text: 'Pause',
+                        text: 'Play/Pause',
                         listeners: {
                             click: AuralSex.Pause
-                        }
-                    }, {
-                        text: 'Stop',
-                        listeners: {
-                            click: AuralSex.Stop
                         }
                     }, '-', {
                         text: 'Back',
@@ -102,16 +99,12 @@ AuralSex = {
 		});
     },
     
-    Stop: function() {
-        new Ajax.Request("/api/stop/" + AURALSEX_ZONE);
-    },
-    
     Pause: function() {
         new Ajax.Request("/api/pause/" + AURALSEX_ZONE);
     },
     
-    Play: function() {
-        new Ajax.Request("/api/play/" + AURALSEX_ZONE);
+    Play: function(id) {
+        new Ajax.Request("/api/play/" + AURALSEX_ZONE + "?track_id=" + id);
     },
     
     Next: function() {

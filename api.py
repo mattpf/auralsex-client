@@ -1,7 +1,7 @@
 import cherrypy
 import sqlite3
 import json
-import urllib2
+import urllib2, urllib
 
 import zones
 
@@ -40,10 +40,12 @@ class AuralAPI(object):
         response.headers['Content-Type'] = 'text/plain'
         return json.dumps({'music': musics})
     
-    def command(self, zone, command):
+    def command(self, zone, command, params=None):
         if zone not in zones.zones:
             raise cherrypy.HTTPError(410)
         uri = "http://%s/%s" % (zones.zones[zone], command)
+        if params is not None:
+            uri += "?%s" % urllib.urlencode(params)
         try:
             urllib2.urlopen(uri).close()
         except:
@@ -55,12 +57,16 @@ class AuralAPI(object):
         return "{success: %s}" % self.command(zone, "pause")
     
     @cherrypy.expose
-    def play(self, zone):
-        return "{success: %s}" % self.command(zone, "play")
-    
-    @cherrypy.expose
-    def stop(self, zone):
-        return "{success: %s}" % self.command(zone, "stop")
+    def play(self, zone, track_id=None, **args):
+        if track_id is None:
+            raise cherry.HTTPError(410)
+        db = sqlite3.connect("music.dat")
+        c = db.cursor()
+        c.execute("SELECT filename FROM music WHERE ROWID = ?", (int(track_id),))
+        filename = c.fetchone()[0]
+        c.close()
+        db.close()
+        self.command(zone, "play", {'filename': filename})
         
     @cherrypy.expose
     def skip(self, zone):
