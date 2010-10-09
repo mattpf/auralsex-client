@@ -17,6 +17,7 @@ AuralSex = {
             autoExpandColumn: 'title',
             emptyText: "Search for something!",
             deferEmptyText: false,
+            enableDragDrop: true,
             view: new Ext.ux.grid.BufferView({scrollDelay: false}),
             listeners: {
                 rowdblclick: function(self, rowIndex) {
@@ -24,6 +25,36 @@ AuralSex = {
                 }
             }
         });
+        AuralSex.PlaylistTree = new Ext.tree.TreePanel({
+            enableDD: true,
+            animate: true,
+            border: false,
+            rootVisible: false,
+            root: new Ext.tree.TreeNode({
+                expanded: true
+            })
+        })
+        AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
+            text: "Library",
+            leaf: true,
+            id: "tree-node-library"
+        }));
+        AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
+            text: "Queue",
+            leaf: true,
+            id: "tree-node-queue"
+        }));
+        AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
+            text: "Playlists",
+            leaf: false,
+            id: "tree-node-playlists"
+        }));
+        
+        AuralSex.PlaylistTree.on('nodedragover', function(event) {
+            alert(event);
+            return false;
+        })
+        
 		AuralSex.VolumeSlider = new Ext.Slider({
 			id: 'volume-slider',
             width: 100,
@@ -74,7 +105,9 @@ AuralSex = {
                 width: 250,
                 resizable: false,
                 margins:'5 0 5 5',
-                cmargins:'5 5 5 5'
+                cmargins:'5 5 5 5',
+                layout: 'fit',
+                items: [AuralSex.PlaylistTree]
             },{
                 region:'center',
                 layout: 'fit',
