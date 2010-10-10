@@ -52,6 +52,15 @@ class AuralAPI(object):
             return False
         return True
     
+    def id_to_filename(self, track_id):
+        db = sqlite3.connect("music.dat")
+        c = db.cursor()
+        c.execute("SELECT filename FROM music WHERE ROWID = ?", (int(track_id),))
+        filename = c.fetchone()[0]
+        c.close()
+        db.close()
+        return filename
+    
     @cherrypy.expose
     def pause(self, zone):
         return "{success: %s}" % self.command(zone, "pause")
@@ -60,13 +69,7 @@ class AuralAPI(object):
     def play(self, zone, track_id=None, **args):
         if track_id is None:
             raise cherry.HTTPError(410)
-        db = sqlite3.connect("music.dat")
-        c = db.cursor()
-        c.execute("SELECT filename FROM music WHERE ROWID = ?", (int(track_id),))
-        filename = c.fetchone()[0]
-        c.close()
-        db.close()
-        self.command(zone, "play", {'filename': filename})
+        self.command(zone, "play", {'filename': self.id_to_filename(track_id)})
         
     @cherrypy.expose
     def skip(self, zone):
@@ -85,4 +88,10 @@ class AuralAPI(object):
         volume = int(urllib2.urlopen(url).read())
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return "{volume: %s}" % volume
+    
+    @cherrypy.expose
+    def append(self, zone, track_id=None, **args):
+        if track_id is None:
+            raise cherry.HTTPError(410)
+        return "{success: %s}" % self.command(zone, "add", {'filename': self.id_to_filename(track_id)})
         

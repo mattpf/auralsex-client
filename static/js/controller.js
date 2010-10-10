@@ -18,6 +18,7 @@ AuralSex = {
             emptyText: "Search for something!",
             deferEmptyText: false,
             enableDragDrop: true,
+            ddGroup: "tracks",
             view: new Ext.ux.grid.BufferView({scrollDelay: false}),
             listeners: {
                 rowdblclick: function(self, rowIndex) {
@@ -26,14 +27,24 @@ AuralSex = {
             }
         });
         AuralSex.PlaylistTree = new Ext.tree.TreePanel({
-            enableDD: true,
             animate: true,
             border: false,
             rootVisible: false,
+            enableDrop: true,
+            ddGroup: "tracks",
+            id: "playlist-tree",
+            listeners: {
+                beforenodedrop: function(e) {
+                    AuralSex.Queue.Append(AuralSex.SongStore.getAt(e.source.dragData.rowIndex).get('id'))
+                },
+                nodedragover: function(e) {
+                    return (e.target.id == "tree-node-queue");
+                }
+            },
             root: new Ext.tree.TreeNode({
                 expanded: true
             })
-        })
+        });
         AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
             text: "Library",
             leaf: true,
@@ -49,11 +60,6 @@ AuralSex = {
             leaf: false,
             id: "tree-node-playlists"
         }));
-        
-        AuralSex.PlaylistTree.on('nodedragover', function(event) {
-            alert(event);
-            return false;
-        })
         
 		AuralSex.VolumeSlider = new Ext.Slider({
 			id: 'volume-slider',
