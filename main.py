@@ -27,7 +27,7 @@ class AuralSex(object):
     @cherrypy.expose
     def index(self):
         authenticate_user()
-        stuff = {'zones': sorted(config.zones.keys()), 'user': cherrypy.request.wsgi_environ['REMOTE_USER']}
+        stuff = {'zones': sorted(config.zones.keys())}
         return Template(file='templates/index.tmpl', searchList=[stuff]).respond()
     
     @cherrypy.expose
