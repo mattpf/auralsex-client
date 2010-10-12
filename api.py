@@ -3,7 +3,7 @@ import sqlite3
 import json
 import urllib2, urllib
 
-import zones
+import config
 
 class AuralAPI(object):
     """The exposed API for the UI"""
@@ -41,9 +41,9 @@ class AuralAPI(object):
         return json.dumps({'music': musics})
     
     def command(self, zone, command, params=None):
-        if zone not in zones.zones:
+        if zone not in config.zones:
             raise cherrypy.HTTPError(410)
-        uri = "http://%s/%s" % (zones.zones[zone], command)
+        uri = "http://%s/%s" % (config.zones[zone], command)
         if params is not None:
             uri += "?%s" % urllib.urlencode(params)
         try:
@@ -82,9 +82,9 @@ class AuralAPI(object):
     @cherrypy.expose
     def volume(self, zone, **args):
         if 'volume' in args:
-            url = 'http://%s/volume?volume=%s' % (zones.zones[zone], int(args['volume']))
+            url = 'http://%s/volume?volume=%s' % (config.zones[zone], int(args['volume']))
         else:
-            url = 'http://%s/volume' % zones.zones[zone]
+            url = 'http://%s/volume' % config.zones[zone]
         volume = int(urllib2.urlopen(url).read())
         cherrypy.response.headers['Content-Type'] = 'application/json'
         return "{volume: %s}" % volume
