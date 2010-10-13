@@ -15,6 +15,7 @@ class MusicCatalog(object):
     def run(self, folder):
         self.db = sqlite3.connect(self.db_path)
         self.cursor = self.db.cursor()
+        self.root = folder
         self.do_folder(folder)
         self.db.commit()
         self.cursor.close()
@@ -48,10 +49,10 @@ class MusicCatalog(object):
                             title = unicode(filename)
                         print "%s (%s): %s - %s" % (album, track, title, artist)
                         self.cursor.execute("INSERT INTO music (filename, title, artist, album, track) VALUES (?, ?, ?, ?, ?)",
-                            (unicode(path), title, artist, album, track))
+                            (unicode(path[len(self.root):]), title, artist, album, track))
                 except:
                     pass
 
 if __name__ == '__main__':
     catalog = MusicCatalog('music.dat')
-    catalog.run('M:/Music')
+    catalog.run('M:/Music/')
