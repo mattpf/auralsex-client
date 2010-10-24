@@ -5,6 +5,11 @@ AuralSex = {
             root: 'music',
             fields: ['id', 'title', 'artist', 'album']
         });
+        AuralSex.QueueStore = new Ext.data.JsonStore({
+            url: '/api/get_queue/' + AURALSEX_ZONE,
+            root: 'queue',
+            fields: ['id', 'title', 'artist', 'album']
+        })
         AuralSex.SongGrid = new Ext.grid.GridPanel({
             border: false,
             store: AuralSex.SongStore,
@@ -26,6 +31,23 @@ AuralSex = {
                 }
             }
         });
+        AuralSex.QueueGrid = new Ext.grid.GridPanel({
+            border: false,
+            store: AuralSex.QueueStore,
+            columns: [
+                {id: 'title', header: 'Title', sortable: false, dataIndex: 'title'},
+                {id: 'album', header: 'Album', sortable: false, dataIndex: 'album', width: 200},
+                {id: 'artist', header: 'Artist', sortable: false, dataIndex: 'artist', width: 200}
+            ],
+            stripeRows: true,
+            autoExpandColumn: 'title',
+            emptyText: 'The queue is empty.',
+            listeners: {
+                rowdblclick: function(self, rowIndex) {
+                    AuralSex.Queue.Play(rowIndex);
+                }
+            }        
+        });
         AuralSex.PlaylistTree = new Ext.tree.TreePanel({
             animate: true,
             border: false,
@@ -35,10 +57,22 @@ AuralSex = {
             id: "playlist-tree",
             listeners: {
                 beforenodedrop: function(e) {
-                    AuralSex.Queue.Append(AuralSex.SongStore.getAt(e.source.dragData.rowIndex).get('id'))
+                    track = AuralSex.SongStore.getAt(e.source.dragData.rowIndex);
+                    AuralSex.Queue.Append(track.get('id'));
                 },
                 nodedragover: function(e) {
                     return (e.target.id == "tree-node-queue");
+                },
+                click: function(node, e) {
+                    AuralSex.Viewport.getComponent('table-panel').removeAll(false);
+                    AuralSex.Viewport.getComponent("table-panel").update();
+                    if(node.id == "tree-node-queue") {
+                		AuralSex.QueueStore.load();
+                        AuralSex.Viewport.getComponent('table-panel').add(AuralSex.QueueGrid);
+                    } else if(node.id == "tree-node-library") {
+                        AuralSex.Viewport.getComponent('table-panel').add(AuralSex.SongGrid);
+                    }
+                    AuralSex.Viewport.doLayout();
                 }
             },
             root: new Ext.tree.TreeNode({
@@ -117,6 +151,7 @@ AuralSex = {
             },{
                 region:'center',
                 layout: 'fit',
+                id: 'table-panel',
                 margins:'5 5 5 0',
                 autoScroll:true,
                 items:[AuralSex.SongGrid]
@@ -136,6 +171,9 @@ AuralSex = {
 			AuralSex.VolumeSlider.setValue(volume, false);
 			AuralSex.VolumeSlider.setDisabled(false);
 		});
+		
+		// Initial load of the queue
+		AuralSex.QueueStore.load();
     },
     
     Pause: function() {

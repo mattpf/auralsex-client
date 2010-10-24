@@ -72,8 +72,11 @@ class AuralAPI(object):
         self.command(zone, "play", {'filename': self.id_to_filename(track_id)})
         
     @cherrypy.expose
-    def skip(self, zone):
-        return "{success: %s}" % self.command(zone, "skip")
+    def skip(self, zone, to=None):
+        if to is None:
+            return "{success: %s}" % self.command(zone, "skip")
+        else:
+            return "{success: %s}" % self.command(zone, "skip", {'to': to})
         
     @cherrypy.expose
     def back(self, zone):
@@ -94,4 +97,25 @@ class AuralAPI(object):
         if track_id is None:
             raise cherry.HTTPError(410)
         return "{success: %s}" % self.command(zone, "add", {'filename': self.id_to_filename(track_id)})
-        
+    
+    @cherrypy.expose
+    def get_queue(self, zone, **args):
+        filenames = urllib2.urlopen('http://%s/list' % config.zones[zone]).read().split("\n")
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        songs = []
+        if len(filenames) == 1 and filenames[0] == '':
+            return json.dumps(songs)
+        db = sqlite3.connect("music.dat")
+        c = db.cursor()
+        i = 0
+        for filename in filenames:
+            i += 1
+            c.execute("SELECT ROWID, title, artist, album FROM music WHERE filename = ?", (filename,))
+            try:
+                track_id, title, artist, album = c.fetchone()
+            except:
+                track_id, title, artist, album = -i, filename, None, None
+            songs.append({'id': track_id, 'title': title, 'artist': artist, 'album': album})
+        c.close()
+        db.close()
+        return json.dumps({'queue': songs})
