@@ -77,8 +77,10 @@ AuralSex = {
             id: "playlist-tree",
             listeners: {
                 beforenodedrop: function(e) {
-                    track = AuralSex.SongStore.getAt(e.source.dragData.rowIndex);
-                    AuralSex.Queue.Append(track.get('id'));
+                    tracks = AuralSex.SongGrid.selModel.getSelections();
+                    tracks.each(function(track) {
+                        AuralSex.Queue.Append(track.get('id'));
+                    });
                 },
                 nodedragover: function(e) {
                     return (e.target.id == "tree-node-queue");
