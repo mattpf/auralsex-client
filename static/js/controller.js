@@ -8,7 +8,7 @@ AuralSex = {
         AuralSex.QueueStore = new Ext.data.JsonStore({
             url: '/api/get_queue/' + AURALSEX_ZONE,
             root: 'queue',
-            fields: ['id', 'title', 'artist', 'album']
+            fields: ['index', 'track_id', 'title', 'artist', 'album']
         })
         AuralSex.SongGrid = new Ext.grid.GridPanel({
             border: false,
@@ -46,7 +46,27 @@ AuralSex = {
                 rowdblclick: function(self, rowIndex) {
                     AuralSex.Queue.Play(rowIndex);
                 }
-            }        
+            },
+            keys: {
+                key: [8, 46], // Backspace, delete
+                stopEvent: true,
+                handler: function() {
+                    rows = AuralSex.QueueGrid.selModel.getSelections();
+                    to_die = []
+                    rows.each(function(item) {
+                        to_die.push(item.get('index'));
+                    });
+                    AuralSex.QueueStore.remove(rows);
+                    AuralSex.Queue.Remove(to_die);
+                    
+                    // Fixup indices.
+                    var i = 0;
+                    AuralSex.QueueStore.getRange().each(function(item){
+                        item.set('index', i++);
+                    });
+                    AuralSex.QueueStore.commitChanges();
+                }
+            }
         });
         AuralSex.PlaylistTree = new Ext.tree.TreePanel({
             animate: true,
@@ -205,4 +225,4 @@ AuralSex = {
 	}
 }
 
-Ext.onReady(AuralSex.init)
+Ext.onReady(AuralSex.init);

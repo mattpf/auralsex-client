@@ -109,13 +109,17 @@ class AuralAPI(object):
         c = db.cursor()
         i = 0
         for filename in filenames:
-            i += 1
             c.execute("SELECT ROWID, title, artist, album FROM music WHERE filename = ?", (filename,))
             try:
                 track_id, title, artist, album = c.fetchone()
             except:
-                track_id, title, artist, album = -i, filename, None, None
-            songs.append({'id': track_id, 'title': title, 'artist': artist, 'album': album})
+                track_id, title, artist, album = None, filename, None, None
+            songs.append({'index': i, 'track_id': track_id, 'title': title, 'artist': artist, 'album': album})
+            i += 1
         c.close()
         db.close()
         return json.dumps({'queue': songs})
+    
+    @cherrypy.expose
+    def remove(self, zone, index, **args):
+        return "{success: %s}" % self.command(zone, "remove", {'index': index})

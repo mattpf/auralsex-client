@@ -14,5 +14,13 @@ AuralSex.Queue = {
     },
     Play: function(pos) {
         new Ajax.Request("/api/skip/" + AURALSEX_ZONE + "?to=" + pos);
+    },
+    Remove: function(positions) {
+        if(typeof positions == 'integer' || typeof positions == 'string') {
+            pos = positions;
+        } else {
+            pos = positions.join(',')
+        }
+        new Ajax.Request("/api/remove/" + AURALSEX_ZONE + "?index=" + pos);
     }
 }
