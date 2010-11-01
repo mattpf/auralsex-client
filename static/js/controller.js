@@ -117,6 +117,8 @@ AuralSex = {
             id: "tree-node-playlists"
         }));
         
+        var volume_ready = false;
+        
 		AuralSex.VolumeSlider = new Ext.Slider({
 			id: 'volume-slider',
             width: 100,
@@ -126,7 +128,9 @@ AuralSex = {
             disabled: true,
 			listeners: {
 				change: function(slider) {
-					AuralSex.SetVolume(slider.getValue())
+				    if(volume_ready) {
+					    AuralSex.SetVolume(slider.getValue())
+					}
 				}
 			}
         });
@@ -190,8 +194,9 @@ AuralSex = {
 
 		// Look up the current volume
 		AuralSex.GetVolume(function(volume) {
+		    AuralSex.VolumeSlider.setDisabled(false);
 			AuralSex.VolumeSlider.setValue(volume, false);
-			AuralSex.VolumeSlider.setDisabled(false);
+			volume_ready = true;
 		});
 		
 		// Initial load of the queue
