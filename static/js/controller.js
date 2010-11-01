@@ -89,7 +89,7 @@ AuralSex = {
                     AuralSex.Viewport.getComponent('table-panel').removeAll(false);
                     AuralSex.Viewport.getComponent("table-panel").update();
                     if(node.id == "tree-node-queue") {
-                		AuralSex.QueueStore.load();
+                        AuralSex.QueueStore.load();
                         AuralSex.Viewport.getComponent('table-panel').add(AuralSex.QueueGrid);
                     } else if(node.id == "tree-node-library") {
                         AuralSex.Viewport.getComponent('table-panel').add(AuralSex.SongGrid);
@@ -119,20 +119,20 @@ AuralSex = {
         
         var volume_ready = false;
         
-		AuralSex.VolumeSlider = new Ext.Slider({
-			id: 'volume-slider',
+        AuralSex.VolumeSlider = new Ext.Slider({
+            id: 'volume-slider',
             width: 100,
             increment: 1,
             minValue: 1,
             maxValue: 10,
             disabled: true,
-			listeners: {
-				change: function(slider) {
-				    if(volume_ready) {
-					    AuralSex.SetVolume(slider.getValue())
-					}
-				}
-			}
+            listeners: {
+                change: function(slider) {
+                    if(volume_ready) {
+                        AuralSex.SetVolume(slider.getValue())
+                    }
+                }
+            }
         });
         AuralSex.Viewport = new Ext.Viewport({
             layout:'border',
@@ -192,15 +192,15 @@ AuralSex = {
             }
         });
 
-		// Look up the current volume
-		AuralSex.GetVolume(function(volume) {
-		    AuralSex.VolumeSlider.setDisabled(false);
-			AuralSex.VolumeSlider.setValue(volume, false);
-			volume_ready = true;
-		});
-		
-		// Initial load of the queue
-		AuralSex.QueueStore.load();
+        // Look up the current volume
+        AuralSex.GetVolume(function(volume) {
+            AuralSex.VolumeSlider.setDisabled(false);
+            AuralSex.VolumeSlider.setValue(volume, false);
+            volume_ready = true;
+        });
+        
+        // Initial load of the queue
+        AuralSex.QueueStore.load();
     },
     
     Pause: function() {
@@ -219,17 +219,17 @@ AuralSex = {
         new Ajax.Request("/api/back/" + AURALSEX_ZONE);
     },
 
-	GetVolume: function(callback) {
-		new Ajax.Request("/api/volume/" + AURALSEX_ZONE, {
-			onSuccess: function(response) {
-				callback(response.responseJSON.volume);
-			}
-		});
-	},
-	
-	SetVolume: function(volume) {
-		new Ajax.Request("/api/volume/" + AURALSEX_ZONE + "?volume=" + volume);
-	}
+    GetVolume: function(callback) {
+        new Ajax.Request("/api/volume/" + AURALSEX_ZONE, {
+            onSuccess: function(response) {
+                callback(response.responseJSON.volume);
+            }
+        });
+    },
+    
+    SetVolume: function(volume) {
+        new Ajax.Request("/api/volume/" + AURALSEX_ZONE + "?volume=" + volume);
+    }
 }
 
 Ext.onReady(AuralSex.init);
