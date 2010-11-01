@@ -121,7 +121,7 @@ AuralSex = {
 			id: 'volume-slider',
             width: 100,
             increment: 1,
-            minValue: 0,
+            minValue: 1,
             maxValue: 10,
             disabled: true,
 			listeners: {
