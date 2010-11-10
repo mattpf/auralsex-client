@@ -111,11 +111,6 @@ AuralSex = {
             leaf: true,
             id: "tree-node-queue"
         }));
-        AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
-            text: "Playlists",
-            leaf: false,
-            id: "tree-node-playlists"
-        }));
         AuralSex.NowPlaying = new Ext.Toolbar.TextItem({text: '(loading...)'});
         
         var volume_ready = false;
