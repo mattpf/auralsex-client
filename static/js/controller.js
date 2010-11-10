@@ -116,6 +116,7 @@ AuralSex = {
             leaf: false,
             id: "tree-node-playlists"
         }));
+        AuralSex.NowPlaying = new Ext.Toolbar.TextItem({text: '(loading...)'});
         
         var volume_ready = false;
         
@@ -181,6 +182,16 @@ AuralSex = {
                 margins:'5 5 5 0',
                 autoScroll:true,
                 items:[AuralSex.SongGrid]
+            }, {
+                region: 'south',
+                layout: 'fit',
+                id: 'nowplaying-panel',
+                height: 28,
+                resizable: false,
+                items: [new Ext.Toolbar({
+                    border: false,
+                    items: ['Now playing: ', AuralSex.NowPlaying]
+                })]
             }]
         });
         Ext.get('search-field').on('keyup', function() {
@@ -201,6 +212,10 @@ AuralSex = {
         
         // Initial load of the queue
         AuralSex.QueueStore.load();
+        
+        // Poll for the current track.
+        new PeriodicalExecuter(AuralSex.UpdateNowPlaying, 5);
+        AuralSex.UpdateNowPlaying();
     },
     
     Pause: function() {
@@ -213,10 +228,12 @@ AuralSex = {
     
     Next: function() {
         new Ajax.Request("/api/skip/" + AURALSEX_ZONE);
+        AuralSex.UpdateNowPlaying();
     },
     
     Back: function() {
         new Ajax.Request("/api/back/" + AURALSEX_ZONE);
+        AuralSex.UpdateNowPlaying();
     },
 
     GetVolume: function(callback) {
@@ -229,6 +246,27 @@ AuralSex = {
     
     SetVolume: function(volume) {
         new Ajax.Request("/api/volume/" + AURALSEX_ZONE + "?volume=" + volume);
+    },
+    
+    GetNowPlaying: function(callback) {
+        new Ajax.Request("/api/now_playing/" + AURALSEX_ZONE, {
+            onSuccess: function(response) {
+                callback(response.responseJSON.playing)
+            },
+            onFailure: function(response) {
+                callback(null);
+            }
+        });
+    },
+    
+    UpdateNowPlaying: function() {
+        AuralSex.GetNowPlaying(function(track) {
+            if(track == null) {
+                AuralSex.NowPlaying.setText("(nothing)")
+            } else {
+                AuralSex.NowPlaying.setText(track.title + " (" + track.album + ") - " + track.artist);
+            }
+        });
     }
 }
 

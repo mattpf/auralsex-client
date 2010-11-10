@@ -123,3 +123,20 @@ class AuralAPI(object):
     @cherrypy.expose
     def remove(self, zone, index, **args):
         return "{success: %s}" % self.command(zone, "remove", {'index': index})
+    
+    @cherrypy.expose
+    def now_playing(self, zone, **args):
+        current_file = urllib2.urlopen('http://%s/current_file' % config.zones[zone]).read()
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        if len(current_file) == 0:
+            return '{"playing": null}'
+        db = sqlite3.connect("music.dat")
+        c = db.cursor()
+        c.execute("SELECT ROWID, title, artist, album FROM music WHERE filename = ?", (current_file,))
+        try:
+            track_id, title, artist, album = c.fetchone()
+        except:
+            track_id, title, artist, album = None, filename, None, None
+        c.close()
+        db.close()
+        return json.dumps({'playing': {'track_id': track_id, 'title': title, 'artist': artist, 'album': album}})
