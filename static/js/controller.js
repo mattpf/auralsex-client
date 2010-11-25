@@ -68,49 +68,7 @@ AuralSex = {
                 }
             }
         });
-        AuralSex.PlaylistTree = new Ext.tree.TreePanel({
-            animate: true,
-            border: false,
-            rootVisible: false,
-            enableDrop: true,
-            ddGroup: "tracks",
-            id: "playlist-tree",
-            listeners: {
-                beforenodedrop: function(e) {
-                    tracks = AuralSex.SongGrid.selModel.getSelections();
-                    tracks.each(function(track) {
-                        AuralSex.Queue.Append(track.get('id'));
-                    });
-                },
-                nodedragover: function(e) {
-                    return (e.target.id == "tree-node-queue");
-                },
-                click: function(node, e) {
-                    AuralSex.Viewport.getComponent('table-panel').removeAll(false);
-                    AuralSex.Viewport.getComponent("table-panel").update();
-                    if(node.id == "tree-node-queue") {
-                        AuralSex.QueueStore.load();
-                        AuralSex.Viewport.getComponent('table-panel').add(AuralSex.QueueGrid);
-                    } else if(node.id == "tree-node-library") {
-                        AuralSex.Viewport.getComponent('table-panel').add(AuralSex.SongGrid);
-                    }
-                    AuralSex.Viewport.doLayout();
-                }
-            },
-            root: new Ext.tree.TreeNode({
-                expanded: true
-            })
-        });
-        AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
-            text: "Library",
-            leaf: true,
-            id: "tree-node-library"
-        }));
-        AuralSex.PlaylistTree.root.appendChild(new Ext.tree.TreeNode({
-            text: "Queue",
-            leaf: true,
-            id: "tree-node-queue"
-        }));
+
         AuralSex.NowPlaying = new Ext.Toolbar.TextItem({text: '(loading...)'});
         
         var volume_ready = false;
@@ -169,7 +127,7 @@ AuralSex = {
                 margins:'5 0 5 5',
                 cmargins:'5 5 5 5',
                 layout: 'fit',
-                items: [AuralSex.PlaylistTree]
+                items: [AuralSex.Sidebar]
             },{
                 region:'center',
                 layout: 'fit',
