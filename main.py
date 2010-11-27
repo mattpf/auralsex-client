@@ -35,7 +35,10 @@ class AuralSex(object):
         authenticate_user()
         if zone not in config.zones:
             raise cherrypy.HTTPError(400)
-        stuff = {'zone': zone}
+        env = cherrypy.request.wsgi_environ
+        username = env['REMOTE_USER'] if 'REMOTE_USER' in env else 'tester@TEST.COM'
+        name = env['SSL_CLIENT_S_DN_CN'] if 'SSL_CLIENT_S_DN_CN' in env else 'Test User'
+        stuff = {'zone': zone, 'user': username, 'name': name}
         return Template(file='templates/interface.tmpl', searchList=[stuff]).respond()
 
 if __name__ == '__main__':

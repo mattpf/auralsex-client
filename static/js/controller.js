@@ -3,13 +3,8 @@ AuralSex = {
         AuralSex.SongStore = new Ext.data.JsonStore({
             url: '/api/search',
             root: 'music',
-            fields: ['id', 'title', 'artist', 'album']
+            fields: ['track_id', 'title', 'artist', 'album']
         });
-        AuralSex.QueueStore = new Ext.data.JsonStore({
-            url: '/api/get_queue/' + AURALSEX_ZONE,
-            root: 'queue',
-            fields: ['index', 'track_id', 'title', 'artist', 'album']
-        })
         AuralSex.SongGrid = new Ext.grid.GridPanel({
             border: false,
             store: AuralSex.SongStore,
@@ -20,56 +15,17 @@ AuralSex = {
             ],
             stripeRows: true,
             autoExpandColumn: 'title',
-            emptyText: "Search for something!",
-            deferEmptyText: false,
             enableDragDrop: true,
             ddGroup: "tracks",
-            view: new Ext.ux.grid.BufferView({scrollDelay: false}),
             listeners: {
                 rowdblclick: function(self, rowIndex) {
-                    AuralSex.Play(AuralSex.SongStore.getAt(rowIndex).get('id'))
-                }
-            }
-        });
-        AuralSex.QueueGrid = new Ext.grid.GridPanel({
-            border: false,
-            store: AuralSex.QueueStore,
-            columns: [
-                {id: 'title', header: 'Title', sortable: false, dataIndex: 'title'},
-                {id: 'album', header: 'Album', sortable: false, dataIndex: 'album', width: 200},
-                {id: 'artist', header: 'Artist', sortable: false, dataIndex: 'artist', width: 200}
-            ],
-            stripeRows: true,
-            autoExpandColumn: 'title',
-            emptyText: 'The queue is empty.',
-            listeners: {
-                rowdblclick: function(self, rowIndex) {
-                    AuralSex.Queue.Play(rowIndex);
-                }
-            },
-            keys: {
-                key: [8, 46], // Backspace, delete
-                stopEvent: true,
-                handler: function() {
-                    rows = AuralSex.QueueGrid.selModel.getSelections();
-                    to_die = []
-                    rows.each(function(item) {
-                        to_die.push(item.get('index'));
-                    });
-                    AuralSex.QueueStore.remove(rows);
-                    AuralSex.Queue.Remove(to_die);
-                    
-                    // Fixup indices.
-                    var i = 0;
-                    AuralSex.QueueStore.getRange().each(function(item){
-                        item.set('index', i++);
-                    });
-                    AuralSex.QueueStore.commitChanges();
+                    AuralSex.Play(AuralSex.SongStore.getAt(rowIndex).get('track_id'))
                 }
             }
         });
 
         AuralSex.NowPlaying = new Ext.Toolbar.TextItem({text: '(loading...)'});
+        AuralSex.State = new Ext.Toolbar.TextItem({text: '', cls: 'state-display'});
         
         var volume_ready = false;
         
@@ -88,6 +44,23 @@ AuralSex = {
                 }
             }
         });
+        
+        AuralSex.SearchField = new Ext.form.TextField({
+            id: 'search-field',
+            emptyText: 'Search',
+            enableKeyEvents: true,
+            listeners: {
+                keypress: function(field) {
+                    val = field.getValue()
+                    if(val.length >= 3) {
+                        AuralSex.SongStore.load({params: {search: val}})
+                    } else {
+                        AuralSex.SongStore.removeAll();
+                    }
+                }
+            }
+        });
+        
         AuralSex.Viewport = new Ext.Viewport({
             layout:'border',
             items:[{
@@ -111,11 +84,7 @@ AuralSex = {
                         listeners: {
                             click: AuralSex.Next
                         }
-                    }, '->', 'Volume: ', AuralSex.VolumeSlider, ' ', {
-                        xtype: 'textfield',
-                        emptyText: "Search",
-                        id: 'search-field'
-                    }]
+                    }, '->', 'Volume: ', AuralSex.VolumeSlider, ' ', AuralSex.SearchField]
                 })]
             },{
                 region:'west',
@@ -143,18 +112,13 @@ AuralSex = {
                 resizable: false,
                 items: [new Ext.Toolbar({
                     border: false,
-                    items: ['Now playing: ', AuralSex.NowPlaying]
+                    items: [AuralSex.State, '-', AuralSex.NowPlaying]
                 })]
             }]
         });
-        Ext.get('search-field').on('keyup', function() {
-            val = Ext.get('search-field').getValue()
-            if(val.length >= 3) {
-                AuralSex.SongStore.load({params: {search: val}})
-            } else {
-                AuralSex.SongStore.removeAll();
-            }
-        });
+        
+        AuralSex.ActiveView = 'library';
+        AuralSex.ActiveGrid = AuralSex.SongGrid;
 
         // Look up the current volume
         AuralSex.GetVolume(function(volume) {
@@ -164,11 +128,17 @@ AuralSex = {
         });
         
         // Initial load of the queue
-        AuralSex.QueueStore.load();
+        AuralSex.Queue.Store.load();
+        AuralSex.Playlist.Store.load();
         
         // Poll for the current track.
         new PeriodicalExecuter(AuralSex.UpdateNowPlaying, 5);
+        new PeriodicalExecuter(AuralSex.UpdateState, 5);
         AuralSex.UpdateNowPlaying();
+        AuralSex.UpdateState();
+        
+        // Highlight the first thingy.
+        AuralSex.Sidebar.root.firstChild.select();
     },
     
     Pause: function() {
@@ -220,6 +190,33 @@ AuralSex = {
                 AuralSex.NowPlaying.setText(track.title + " (" + track.album + ") - " + track.artist);
             }
         });
+    },
+    
+    GetState: function(callback) {
+        new Ajax.Request("/api/state/" + AURALSEX_ZONE, {
+            onSuccess: function(response) {
+                callback(response.responseJSON.state);
+            },
+            onFailure: function(response) {
+                callback(null);
+            }
+        })
+    },
+    
+    UpdateState: function() {
+        AuralSex.GetState(function(state) {
+            var text;
+            if(state == "playing") {
+                text = "Playing";
+            } else if(state == "paused") {
+                text = "Paused";
+            } else if(state == "stopped") {
+                text = "Stopped";
+            } else {
+                text = "(unknown)";
+            }
+            AuralSex.State.setText(text);
+        })
     }
 }
 

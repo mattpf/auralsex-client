@@ -1,0 +1,15 @@
+#playlist-tree img.playlist-icon {
+    background-image: url(/static/images/playlist.png);
+}
+
+div.state-display {
+    font-weight: bold;
+}
+
+div.grid-row-insert-below {
+ 	 border-bottom:1px dotted #36c;
+}
+
+div.grid-row-insert-above {
+	 border-top:1px dotted #36c;
+}
