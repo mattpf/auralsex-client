@@ -23,6 +23,7 @@ def authenticate_user():
 class AuralSex(object):
     def __init__(self):
         self.api = api.AuralAPI()
+        self.user_tokens = {}
     
     @cherrypy.expose
     def index(self):
@@ -38,11 +39,15 @@ class AuralSex(object):
         env = cherrypy.request.wsgi_environ
         username = env['REMOTE_USER'] if 'REMOTE_USER' in env else 'tester@TEST.COM'
         name = env['SSL_CLIENT_S_DN_CN'] if 'SSL_CLIENT_S_DN_CN' in env else 'Test User'
-        stuff = {'zone': zone, 'user': username, 'name': name}
+        serial = env['SSL_CLIENT_M_SERIAL'] if 'SSL_CLIENT_M_SERIAL' in env else '42'
+        self.user_tokens[username] = serial
+        stuff = {'zone': zone, 'user': username, 'name': name, 'token': serial, 'server': config.music_server}
         return Template(file='templates/interface.tmpl', searchList=[stuff]).respond()
     
     @cherrypy.expose
-    def stream(self, track_id):
+    def stream(self, track_id, username=None, token=None):
+        if username not in self.user_tokens or self.user_tokens[username] != token:
+            raise cherrypy.HTTPError(403, "Not authorised.")
         if '.' in track_id:
             track_id = track_id.split('.')[0]
         c = self.api.mdb().cursor()

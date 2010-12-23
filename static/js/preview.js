@@ -60,7 +60,11 @@ AuralSex.Preview = function(container, track) {
         // I know of no other browser that supports <audio> decently anyway:
         // Opera and Firefox both refuse to play anything useful solely for ideological
         // reasons and I can't test IE9 anyway.
-        play_url("/stream/" + id + ".mp3");
+        // ADDENDUM: Because Safari is even more retarded than previously believed,
+        // we also now have to request the music from a different server. We pass
+        // some basic authentication so random people can't just start listening.
+        // Fuck Safari.
+        play_url(AURALSEX_PREVIEW_SERVER + "/stream/" + id + ".mp3" + "?username=" + AURALSEX_USER + "&token=" + AURALSEX_PREVIEW_TOKEN);
     }
     
     function play() {
