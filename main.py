@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import random
 import cherrypy
 from Cheetah.Template import Template
 
@@ -39,7 +40,7 @@ class AuralSex(object):
         env = cherrypy.request.wsgi_environ
         username = env['REMOTE_USER'] if 'REMOTE_USER' in env else 'tester@TEST.COM'
         name = env['SSL_CLIENT_S_DN_CN'] if 'SSL_CLIENT_S_DN_CN' in env else 'Test User'
-        serial = env['SSL_CLIENT_M_SERIAL'] if 'SSL_CLIENT_M_SERIAL' in env else '42'
+        serial = self.user_tokens[username] if username in self.user_tokens else hex(random.getrandbits(256))[2:-1]
         self.user_tokens[username] = serial
         stuff = {'zone': zone, 'user': username, 'name': name, 'token': serial, 'server': config.music_server}
         return Template(file='templates/interface.tmpl', searchList=[stuff]).respond()
