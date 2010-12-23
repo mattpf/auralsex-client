@@ -9,6 +9,7 @@ AuralSex = {
             border: false,
             store: AuralSex.SongStore,
             columns: [
+                {id: 'preview', header: '', sortable: false, width: 30, renderer: AuralSex.SearchPreviewColumn},
                 {id: 'title', header: 'Title', sortable: true, dataIndex: 'title'},
                 {id: 'album', header: 'Album', sortable: true, dataIndex: 'album', width: 200},
                 {id: 'artist', header: 'Artist', sortable: true, dataIndex: 'artist', width: 200}
@@ -20,6 +21,18 @@ AuralSex = {
             listeners: {
                 rowdblclick: function(self, rowIndex) {
                     AuralSex.Play(AuralSex.SongStore.getAt(rowIndex).get('track_id'))
+                },
+                mouseover: function(e) {
+                    var target = e.getTarget();
+                    var row = AuralSex.SongGrid.view.findRowIndex(target);
+                    if(!AuralSex.PreviewElement.Playing()) {
+                        if(row !== false) {
+                            AuralSex.PreviewElement.PrependTo($('auralsex-search-preview-' + row));
+                            AuralSex.PreviewElement.SetTrack(AuralSex.SongStore.getAt(row).get('track_id'));
+                        } else {
+                            AuralSex.PreviewElement.Remove();
+                        } 
+                    }
                 }
             }
         });
@@ -131,6 +144,9 @@ AuralSex = {
         AuralSex.Queue.Store.load();
         AuralSex.Playlist.Store.load();
         
+        // Prepare the preview
+        AuralSex.PreviewElement.init();
+        
         // Poll for the current track.
         new PeriodicalExecuter(AuralSex.UpdateNowPlaying, 5);
         new PeriodicalExecuter(AuralSex.UpdateState, 5);
@@ -217,6 +233,11 @@ AuralSex = {
             }
             AuralSex.State.setText(text);
         })
+    },
+    
+    SearchPreviewColumn: function(value, metaData, record, rowIndex, colIndex, store) {
+        metaData.attr = 'id="auralsex-search-preview-' + rowIndex + '"';
+        return "";
     }
 }
 

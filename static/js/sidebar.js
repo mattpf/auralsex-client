@@ -21,6 +21,8 @@
     }
     
     function select_view(node, e) {
+        AuralSex.PreviewElement.Pause();
+        AuralSex.PreviewElement.Remove();
         AuralSex.Viewport.getComponent('table-panel').removeAll(false);
         AuralSex.Viewport.getComponent("table-panel").update();
         if(node.id == "tree-node-library") {

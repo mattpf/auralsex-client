@@ -13,3 +13,16 @@ div.grid-row-insert-below {
 div.grid-row-insert-above {
 	 border-top:1px dotted #36c;
 }
+
+.auralsex-audio-preview + .auralsex-track-number {
+    display: none;
+}
+
+.auralsex-audio-preview {
+    margin-top: -3px;
+    margin-bottom: -3px;
+}
+
+.x-grid3-row {
+    height: 22px;
+}

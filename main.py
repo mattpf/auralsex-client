@@ -40,6 +40,22 @@ class AuralSex(object):
         name = env['SSL_CLIENT_S_DN_CN'] if 'SSL_CLIENT_S_DN_CN' in env else 'Test User'
         stuff = {'zone': zone, 'user': username, 'name': name}
         return Template(file='templates/interface.tmpl', searchList=[stuff]).respond()
+    
+    @cherrypy.expose
+    def stream(self, track_id):
+        if '.' in track_id:
+            track_id = track_id.split('.')[0]
+        c = self.api.mdb().cursor()
+        c.execute("SELECT filename FROM music WHERE ROWID = ?", (int(track_id),))
+        try:
+            filename = c.fetchone()[0]
+        except:
+            c.close()
+            raise cherrypy.HTTPError(404, "Track not found.")
+        # Fuck you, Safari. See preview.js.
+        cherrypy.response.headers["Content-Type"] = "application/octet-stream"
+        c.close()
+        return open("%s/%s" % (config.music_dir, filename))
 
 if __name__ == '__main__':
     cherrypy.quickstart(AuralSex(), '/', 'cherrypy.conf')

@@ -45,6 +45,10 @@ AuralSex.Playlist = {
         new Ajax.Request('/api/clear_playlist');
         AuralSex.Playlist.Store.removeAll();
         AuralSex.Playlist.Store.commitChanges();
+    },
+    PreviewColumn: function(value, metaData, record, rowIndex, colIndex, store) {
+        metaData.attr = 'id="auralsex-playlist-preview-' + rowIndex + '"';
+        return "<span class='auralsex-track-number'>" + value + "</span>";
     }
 }
 
@@ -52,7 +56,7 @@ AuralSex.Playlist.Grid = new Ext.grid.GridPanel({
     border: false,
     store: AuralSex.Playlist.Store,
     columns: [
-        {id: 'index', header: '', sortable: false, dataIndex: 'index', width: 30},
+        {id: 'index', header: '', sortable: false, dataIndex: 'index', width: 30, renderer: AuralSex.Playlist.PreviewColumn},
         {id: 'title', header: 'Title', sortable: false, dataIndex: 'title', width: 200},
         {id: 'album', header: 'Album', sortable: false, dataIndex: 'album', width: 200},
         {id: 'artist', header: 'Artist', sortable: false, dataIndex: 'artist', width: 200}
@@ -83,6 +87,19 @@ AuralSex.Playlist.Grid = new Ext.grid.GridPanel({
             var rows = AuralSex.Playlist.Grid.selModel.getSelections();
             AuralSex.Playlist.Remove(rows);
         }
+    },
+    listeners: {
+        mouseover: function(e) {
+            var target = e.getTarget();
+            var row = AuralSex.Playlist.Grid.view.findRowIndex(target);
+            if(!AuralSex.PreviewElement.Playing()) {
+                if(row !== false) {
+                    AuralSex.PreviewElement.PrependTo($('auralsex-playlist-preview-' + row));
+                    AuralSex.PreviewElement.SetTrack(AuralSex.Playlist.Store.getAt(row).get('track_id'));
+                } else {
+                    AuralSex.PreviewElement.Remove();
+                } 
+            }
+        }
     }
-    
 });

@@ -42,6 +42,10 @@ AuralSex.Queue = {
     Clear: function() {
         new Ajax.Request("/api/clear_queue/" + AURALSEX_ZONE);
         AuralSex.Queue.Store.removeAll();
+    },
+    PreviewColumn: function(value, metaData, record, rowIndex, colIndex, store) {
+        metaData.attr = 'id="auralsex-queue-preview-' + rowIndex + '"';
+        return "<span class='auralsex-track-number'>" + (rowIndex + 1) + "</span>";
     }
 };
 
@@ -49,9 +53,10 @@ AuralSex.Queue.Grid = new Ext.grid.GridPanel({
     border: false,
     store: AuralSex.Queue.Store,
     columns: [
-        {id: 'title', header: 'Title', sortable: false, dataIndex: 'title'},
-        {id: 'album', header: 'Album', sortable: false, dataIndex: 'album', width: 200},
-        {id: 'artist', header: 'Artist', sortable: false, dataIndex: 'artist', width: 200}
+        {id: 'index', header: '', dataIndex: 'index', width: 30, renderer: AuralSex.Queue.PreviewColumn},
+        {id: 'title', header: 'Title', dataIndex: 'title'},
+        {id: 'album', header: 'Album', dataIndex: 'album', width: 200},
+        {id: 'artist', header: 'Artist', dataIndex: 'artist', width: 200}
     ],
     stripeRows: true,
     autoExpandColumn: 'title',
@@ -60,6 +65,18 @@ AuralSex.Queue.Grid = new Ext.grid.GridPanel({
     listeners: {
         rowdblclick: function(self, rowIndex) {
             AuralSex.Queue.Play(rowIndex);
+        },
+        mouseover: function(e) {
+            var target = e.getTarget();
+            var row = AuralSex.Queue.Grid.view.findRowIndex(target);
+            if(!AuralSex.PreviewElement.Playing()) {
+                if(row !== false) {
+                    AuralSex.PreviewElement.PrependTo($('auralsex-queue-preview-' + row));
+                    AuralSex.PreviewElement.SetTrack(AuralSex.Queue.Store.getAt(row).get('track_id'));
+                } else {
+                    AuralSex.PreviewElement.Remove();
+                } 
+            }
         }
     },
     keys: {
