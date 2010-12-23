@@ -48,7 +48,9 @@ class AuralSex(object):
     @cherrypy.expose
     def stream(self, track_id, username=None, token=None):
         if username not in self.user_tokens or self.user_tokens[username] != token:
-            raise cherrypy.HTTPError(403, "Not authorised.")
+            env = cherrypy.request.wsgi_environ
+            if 'REMOTE_USER' not in env or env['REMOTE_USER'] not in config.users:
+                raise cherrypy.HTTPError(403, "Not authorised.")
         if '.' in track_id:
             track_id = track_id.split('.')[0]
         c = self.api.mdb().cursor()
