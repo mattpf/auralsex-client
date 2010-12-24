@@ -3,6 +3,7 @@ import sqlite3
 import json
 import urllib2, urllib
 import time
+import subprocess
 from threading import Lock, local
 
 import config
@@ -31,6 +32,7 @@ class AuralAPI(object):
         return cherrypy.request.wsgi_environ['REMOTE_USER'] if 'REMOTE_USER' in cherrypy.request.wsgi_environ else None
     
     def log_event(self, zone, event):
+        subprocess.call(["zwrite", "-d", "-c", "auralsex", "-i", "activity", "-s", "Aural Sex)  (%s in %s" % (self.current_user().split('@')[0], zone), "-m", event])
         with self.log_lock:
             with open('%s/action_log.txt' % main.current_dir, 'a+') as log:
                 log.write("[%s] [%s] [%s] %s\n" % (time.strftime('%x %X'), zone, self.current_user(), event))
@@ -82,30 +84,37 @@ class AuralAPI(object):
         c.close()
         return filename
     
+    def id_to_title(self, track_id):
+        c = self.mdb().cursor()
+        c.execute("SELECT title FROM music WHERE ROWID = ?", (int(track_id),))
+        title = c.fetchone()[0]
+        c.close()
+        return title
+    
     @cherrypy.expose
     def pause(self, zone):
-        self.log_event(zone, "toggled pause")
+        self.log_event(zone, "Toggled pause.")
         return "{success: %s}" % self.command(zone, "pause")
     
     @cherrypy.expose
     def play(self, zone, track_id=None, **args):
         if track_id is None:
             raise cherry.HTTPError(410)
-        self.log_event(zone, "played track #%s" % track_id)
+        self.log_event(zone, "Played \"%s\"." % self.id_to_title(track_id))
         self.command(zone, "play", {'filename': self.id_to_filename(track_id)})
         
     @cherrypy.expose
     def skip(self, zone, to=None):
         if to is None:
-            self.log_event(zone, "skipped to next track")
+            self.log_event(zone, "Skipped to next track.")
             return "{success: %s}" % self.command(zone, "skip")
         else:
-            self.log_event(zone, "skipped to track #%s" % to)
+            self.log_event(zone, "Skipped to track #%s." % to)
             return "{success: %s}" % self.command(zone, "skip", {'to': to})
         
     @cherrypy.expose
     def back(self, zone):
-        self.log_event(zone, "skipped back one track")
+        self.log_event(zone, "Skipped to previous track.")
         return "{success: %s}" % self.command(zone, "back")
     
     @cherrypy.expose
@@ -129,7 +138,7 @@ class AuralAPI(object):
     def append(self, zone, track_id=None, **args):
         if track_id is None:
             raise cherry.HTTPError(410)
-        self.log_event(zone, "added track #%s to the queue" % track_id)
+        self.log_event(zone, "Added tracks to the queue:\n- %s" % '\n- '.join(self.id_to_title(x) for x in track_id.split(',')))
         
         to_play = ["filename=%s" % urllib.quote_plus(self.id_to_filename(int(x))) for x in track_id.split(',')]
         uri = "http://%s/add?%s" % (config.zones[zone], '&'.join(to_play))
@@ -162,12 +171,12 @@ class AuralAPI(object):
     
     @cherrypy.expose
     def remove(self, zone, index, **args):
-        self.log_event(zone, "removed track(s) #%s from the queue" % index)
+        self.log_event(zone, "Removed %s track(s) from the queue." % len(index.split(',')))
         return "{success: %s}" % self.command(zone, "remove", {'index': index})
     
     @cherrypy.expose
     def clear_queue(self, zone, **args):
-        self.log_event(zone, "cleared the queue")
+        self.log_event(zone, "Cleared the queue.")
         return "{success: %s}" % self.command(zone, "clear")
     
     @cherrypy.expose
@@ -291,7 +300,7 @@ class AuralAPI(object):
         if zone not in config.zones:
             raise cherrypy.HTTPError(410)
         playlist = self.get_playlist()
-        self.log_event(zone, "played playlist #%s" % playlist)
+        self.log_event(zone, "Played playlist #%s." % playlist)
         c = self.pdb().cursor()
         c.execute("SELECT track FROM tracks WHERE playlist = ? ORDER BY ordering", (playlist,))
         to_play = ["filename=%s" % urllib.quote_plus(self.id_to_filename(row[0])) for row in c]
