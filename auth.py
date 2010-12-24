@@ -22,10 +22,12 @@ class Auth(object):
                 logging.warning("Moira error: %s" % errstr)
     
     def update_cache(self):
+        logging.info("Updating moira auth cache.")
         moira.connect()
         self.auth_users.clear()
         self.grab_list_members((self.group,))
         moira.disconnect()
+        self.last_update = time.time()
     
     def check_user(self, user):
         if '@' in user:
