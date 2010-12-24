@@ -1,55 +1,10 @@
 music_dir = '/music'
 music_server = 'https://auralsex.mit.edu:444'
 
+moira_list = 'auralsex-users'
+moira_cache_time = 300
+
 zones = {
     'bemis': 'auralsex3.mit.edu:39868',
     #'drum': 'auralsex2.mit.edu:8000',
 }
-
-users = [
-    'aliciac@MIT.EDU',
-    'annawb@MIT.EDU',
-    'atw@MIT.EDU',
-    'bshaya@MIT.EDU',
-    'bsmc@MIT.EDU',
-    'cjfman@MIT.EDU',
-    'cwuz@MIT.EDU',
-    'dhrosa@MIT.EDU',
-    'dmalt@MIT.EDU',
-    'eavila@MIT.EDU',
-    'eddiecc@MIT.EDU',
-    'emilytow@MIT.EDU',
-    'emrosen@MIT.EDU',
-    'hbar@MIT.EDU',
-    'jagat@MIT.EDU',
-    'jchien@MIT.EDU',
-    'jinstone@MIT.EDU',
-    'jlab21@MIT.EDU',
-    'jpourian@MIT.EDU',
-    'jriemer@MIT.EDU',
-    'julianaw@MIT.EDU',
-    'katharin@MIT.EDU',
-    'kemus@MIT.EDU',
-    'kiranb@MIT.EDU',
-    'klawhorn@MIT.EDU',
-    'lbogoev@MIT.EDU',
-    'lizsimon@MIT.EDU',
-    'lynetcha@MIT.EDU',
-    'maggied@MIT.EDU',
-    'mattpf@MIT.EDU',
-    'mcelaya@MIT.EDU',
-    'meghan@MIT.EDU',
-    'mflores6@MIT.EDU',
-    'mjahearn@MIT.EDU',
-    'mlinnell@MIT.EDU',
-    'mnawrot@MIT.EDU',
-    'nvelez@MIT.EDU',
-    'ostro@MIT.EDU',
-    'ptieu@MIT.EDU',
-    'rcolby@MIT.EDU',
-    'sflowers@MIT.EDU',
-    'spock@MIT.EDU',
-    'tshen2@MIT.EDU',
-    'vinayak@MIT.EDU',
-    'xytus@MIT.EDU',
-]
