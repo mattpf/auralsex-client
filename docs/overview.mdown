@@ -1,0 +1,70 @@
+# Aural Sex #
+Aural Sex consists of two software servers (written in Python), running on some
+number of physical servers. The audio control server runs on multiple machines
+(by convention, named `auralsex2` through `auralsexn`). This server listens for
+HTTP requests and, in response to such requests, sends command to an instance of
+mplayer running in "slave mode". Music is streamed from nannycheese via FTP on
+demand, using a database of music known to exist. A web interface runs on
+`auralsex` and provides an "elegant" user interface. The web interfaces uses the
+aforementioned HTTP API to make things happen.
+
+## Ongoing maintenance ##
+The following must be performed in order to ensure the continued operation of
+the system:
+
+- The track database must be rebuilt periodically (see below).
+- As people leave and join the hall they should be added to the list in
+  config.py.
+- The SSL certificate for `auralsex.mit.edu` must be renewed annually
+  - Email a CSR to mitcert@mit.edu
+- In August 2026 the MIT Client CA will expire. At that point in time, the copy
+  on the server must be replaced (this *may* potentially happen sooner).
+  
+You may log in to any server using the password `zem8swut`.
+
+## Audio servers ##
+The audio servers are in the git repository `auralsex.git`, and are responsible
+for the actual audio output. They are connected to an amplifier (of some sort)
+and some number of transducers (generally four per bathroom).
+
+These servers should all have the nannycheese music folder (`M:\Music` at the
+time of writing) mounted at `/music/`. The audio server should then be
+invoked with the following command (assuming the server is set up in
+`/auralsex/`):
+
+`/auralsex/main.py /music >> /auralsex/access.log 2>&1 &`
+
+The servers listen on randomly assigned ports, which are given in their source.
+
+### Issues ###
+If the system on which the server is running does not have hardware mixing (or,
+more accurately, if the system is set up such that it can't find them) mplayer
+will reset the volume every time the song changes. This is hacked around by
+resetting the volume to its current level every time the song changes. This has
+the disadvantage of a potential burst of loud music for a split second.
+
+### API ###
+
+- `/play[?filename=/path/to/file]` - plays the current queue. If a filename is
+  specified, it will instead play that filename, then jump back into the queue.
+- `/pause` - toggles play/pause status
+- `/stop` - Stops playback
+- `/reset` - Returns to the start of the current song
+- `/add?filename=</path/to/file>` - Adds ``/path/to/file`` to the current play
+  queue
+- `/clear` - Clears the play queue
+- `/remove?filename=</path/to/file>` - Removes (only the first instance of) 
+  `/path/to/file` from the queue
+- `/skip` - Skips to the next track in the queue
+- `/back` - Skips to the previous track in the queue
+- `/list` - Lists the current play queue, one filename per line
+- `/current` - Gives the current index in the play queue
+- `/current_file` - Gives the path to the currently playing song
+- `/volume[?volume=v]` - If volume is provided, sets the volume to `v`. Returns
+  the current volume in either case.
+
+## Webserver ##
+The webserver backend is written in Python (using cherrypy), behind lighttpd,
+so we can use lighttpd to handle MIT certificate authentication. The frontend is
+written using ExtJS 3 as a UI framework, and uses Ajax/JSON to communicate with
+the backend.
