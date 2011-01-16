@@ -100,7 +100,11 @@ AuralSex.Preview = function(container, track) {
         if(track) {
             mTrackID = track;
         }
-        mAudioElement = $(new Audio());
+        try {
+            mAudioElement = $(new Audio());
+        } catch(e) {
+            return;
+        }
         mAudioElement.observe('canplaythrough', on_have_enough_data);
         mAudioElement.observe('paused', on_paused);
         mAudioElement.observe('ended', on_paused);
@@ -166,10 +170,12 @@ AuralSex.Preview = function(container, track) {
             delete mButton;
         },
         AppendTo: function(parent) {
-            parent.appendChild(mContainer);
+            if(mAudioElement)
+                parent.appendChild(mContainer);
         },
         PrependTo: function(parent) {
-            parent.insertBefore(mContainer, parent.firstChild);
+            if(mAudioElement)
+                parent.insertBefore(mContainer, parent.firstChild);
         },
         Remove: function(parent) {
             remove();
