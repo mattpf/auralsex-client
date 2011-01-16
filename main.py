@@ -16,11 +16,11 @@ class AuralSex(object):
         self.auth = auth.Auth(config.moira_list, config.moira_cache_time)
         self.user_tokens = {}
     
-    def authenticate_user(self):
+    def authenticate_user(self, allow_empty_remote=True):
         environ = cherrypy.request.wsgi_environ
-        if 'REMOTE_USER' not in environ:
-            return True # Useful for debugging; lighttpd won't let this happen
-        if not self.auth.check_user(environ['REMOTE_USER']):
+        if allow_empty_remote and 'REMOTE_USER' not in environ:
+            return True # Useful for debugging; lighttpd won't let this happen (except on port 444)
+        if 'REMOTE_USER' not in environ or not self.auth.check_user(environ['REMOTE_USER']):
             # Showing off is fun.
             name = environ['SSL_CLIENT_S_DN_CN']
             first = name.split(' ', 1)[0]
@@ -50,7 +50,7 @@ class AuralSex(object):
     @cherrypy.expose
     def stream(self, track_id, username=None, token=None):
         if username not in self.user_tokens or self.user_tokens[username] != token:
-            self.authenticate_user()
+            self.authenticate_user(allow_empty_remote=False)
         if '.' in track_id:
             track_id = track_id.split('.')[0]
         c = self.api.mdb().cursor()
