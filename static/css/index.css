@@ -1,0 +1,43 @@
+body {
+    background-color: #D0DEF0;
+    width: 100%;
+    text-align: center;
+    font-family: tahoma, arial, verdana, sans-serif;
+}
+
+#container {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #A9BFD3;
+    background-color: white;
+    border-top-style: none;
+}
+
+h1 {
+    color: #15428B;
+    background: url(/static/ext-resources/images/default/panel/white-top-bottom.gif);
+    margin: 0px;
+    border-bottom-color: #A9BFD3;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    font-size: large;
+}
+
+ul {
+    padding: 0px;
+    margin: 0px;
+}
+
+li {
+    list-style-type: none;
+    text-transform: capitalize;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+li:nth-child(2n) {
+    background-color: #FAFAFA;
+}

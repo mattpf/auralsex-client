@@ -2,13 +2,16 @@
 <html>
     <head>
         <title>Aural Sex</title>
+        <link rel="stylesheet" type="text/css" href="/static/css/index.css">
     </head>
     <body>
-        <h1>Aural Sex control</h1>
-        <ul id="zone_list">
-            #for $zone in $zones:
-            <li><a href="/control/$zone">$zone</a></li>
-            #end for
-        </ul>
+        <div id="container">
+            <h1>Zone Selection</h1>
+            <ul id="zone-list">
+                #for $zone in $zones:
+                <li><a href="/control/$zone">$zone</a></li>
+                #end for
+            </ul>
+        </div>
     </body>
 </html>
