@@ -119,12 +119,13 @@ AuralSex.Preview = function(container, track) {
         mContainer = (new Element('div', {className: 'auralsex-audio-preview'})).setStyle({
             height: '21px',
             width: '21px',
-            backgroundImage: 'url(/static/images/preview-progress-sprites.png)',
+            backgroundImage: 'url(/static/images/preview-progress-sprites.png)'
         });
         mButton = (new Element('div')).setStyle({
             height: '21px',
             width: '21px',
-            backgroundImage: 'url(/static/images/preview-button-sprites.png)'
+            backgroundImage: 'url(/static/images/preview-button-sprites.png)',
+            cursor: 'pointer'
         });
         mButton.observe('mousedown', function() {
             update_button_pos(2);
