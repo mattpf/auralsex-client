@@ -16,6 +16,17 @@ body {
     border-top-style: none;
 }
 
+#footer p {
+    padding: 0px;
+    margin: 0px;
+    font-size: 0.6em;
+    color: #15428B;
+}
+
+#footer a, #footer a:visited {
+    color: inherit;
+}
+
 h1 {
     color: #15428B;
     background: url(/static/ext-resources/images/default/panel/white-top-bottom.gif);
