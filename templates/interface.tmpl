@@ -11,6 +11,9 @@
         </script>
         <link rel="stylesheet" href="/static/ext-resources/css/ext-all.css">
         <link rel="stylesheet" href="/static/css/ui.css">
+        #if $firstrun
+            <link rel="stylesheet" href="/static/css/tutorial.css">
+        #end if
         
         <!-- Libraries are fun -->
         <script type="text/javascript" src="/static/js/lib/prototype.js"></script>
@@ -25,6 +28,9 @@
         <script type="text/javascript" src="/static/js/preview.js"></script>
         <script type="text/javascript" src="/static/js/queue.js"></script>
         <script type="text/javascript" src="/static/js/playlist.js"></script>
+        #if $firstrun
+            <script type="text/javascript" src="/static/js/firstrun.js"></script>
+        #end if
     </head>
     <body></body>
 </html>

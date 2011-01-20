@@ -18,14 +18,14 @@ class AuralAPI(object):
         try:
             return self.dbs.m
         except AttributeError:
-            self.dbs.m = sqlite3.connect("music.dat")
+            self.dbs.m = sqlite3.connect("data/music.dat")
             return self.dbs.m
     
     def pdb(self):
         try:
             return self.dbs.p
         except AttributeError:
-            self.dbs.p = sqlite3.connect("playlists.dat")
+            self.dbs.p = sqlite3.connect("data/playlists.dat")
             return self.dbs.p
     
     def current_user(self):

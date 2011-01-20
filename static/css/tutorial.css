@@ -1,0 +1,33 @@
+.firstrun-arrow {
+    z-index: 9001; /* Must be over nine thousand. */
+    position: absolute;
+    display: block;
+}
+
+.tutorial p {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.tutorial li {
+    list-style-type: disc;
+    font-size: 1.1em;
+    margin-left: 20px;
+    margin-bottom: 5px;
+}
+
+.tutorial .x-window-body {
+    padding: 10px;
+}
+
+.tutorial em {
+    font-style: italic;
+}
+
+.tutorial strong {
+    font-weight: bold;
+}
+
+.nb {
+    font-style: italic;
+}

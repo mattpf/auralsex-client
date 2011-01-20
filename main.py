@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import random
+import anydbm
 import cherrypy
 from Cheetah.Template import Template
 
@@ -15,6 +16,7 @@ class AuralSex(object):
         self.api = api.AuralAPI()
         self.auth = auth.Auth(config.moira_list, config.moira_cache_time)
         self.user_tokens = {}
+        self.kvs = anydbm.open('data/settings', 'c')
     
     def authenticate_user(self, allow_empty_remote=True):
         environ = cherrypy.request.wsgi_environ
@@ -35,7 +37,7 @@ class AuralSex(object):
         return Template(file='templates/index.tmpl', searchList=[stuff]).respond()
     
     @cherrypy.expose
-    def control(self, zone):
+    def control(self, zone, firstrun=False):
         self.authenticate_user()
         if zone not in config.zones:
             raise cherrypy.HTTPError(400)
@@ -44,7 +46,10 @@ class AuralSex(object):
         name = env['SSL_CLIENT_S_DN_CN'] if 'SSL_CLIENT_S_DN_CN' in env else 'Test User'
         serial = self.user_tokens[username] if username in self.user_tokens else hex(random.getrandbits(256))[2:-1]
         self.user_tokens[username] = serial
-        stuff = {'zone': zone, 'user': username, 'name': name, 'token': serial, 'server': config.music_server}
+        if not self.kvs.has_key('firstrun_%s' % username):
+            firstrun = True
+            self.kvs['firstrun_%s' % username] = '1'
+        stuff = {'zone': zone, 'user': username, 'name': name, 'token': serial, 'server': config.music_server, 'firstrun': firstrun}
         return Template(file='templates/interface.tmpl', searchList=[stuff]).respond()
     
     @cherrypy.expose

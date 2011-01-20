@@ -52,7 +52,7 @@ AuralSex = {
             listeners: {
                 change: function(slider) {
                     if(volume_ready) {
-                        AuralSex.SetVolume(slider.getValue())
+                        AuralSex.SetVolume(slider.getValue());
                     }
                 }
             }
@@ -66,7 +66,7 @@ AuralSex = {
                 keypress: function(field) {
                     val = field.getValue()
                     if(val.length >= 3) {
-                        AuralSex.SongStore.load({params: {search: val}})
+                        AuralSex.SongStore.load({params: {search: val}});
                     } else {
                         AuralSex.SongStore.removeAll();
                     }
