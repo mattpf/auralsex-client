@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 import os
 import random
-import anydbm
+import logging
+try:
+    import dbhash
+except:
+    import dumbdbm as dbhash # Used for development.
+    logging.warn("Using dumbdbm for user setting storage.")
 import cherrypy
 from Cheetah.Template import Template
 
@@ -16,7 +21,7 @@ class AuralSex(object):
         self.api = api.AuralAPI()
         self.auth = auth.Auth(config.moira_list, config.moira_cache_time)
         self.user_tokens = {}
-        self.kvs = anydbm.open('data/settings', 'c')
+        self.kvs = dbhash.open('data/settings', 'c')
     
     def authenticate_user(self, allow_empty_remote=True):
         environ = cherrypy.request.wsgi_environ
@@ -49,6 +54,7 @@ class AuralSex(object):
         if not self.kvs.has_key('firstrun_%s' % username):
             firstrun = True
             self.kvs['firstrun_%s' % username] = '1'
+            self.kvs.sync()
         stuff = {'zone': zone, 'user': username, 'name': name, 'token': serial, 'server': config.music_server, 'firstrun': firstrun}
         return Template(file='templates/interface.tmpl', searchList=[stuff]).respond()
     
