@@ -1,0 +1,37 @@
+Remote setup
+=============
+
+Requirements (with [SparkFun][] part numbers)
+-------------
+- 1 x nRF24L01+ (w/ chip antenna) - [WRL-00691][]
+- 1 x nRF24L01+ (w/ RP-SMA) - [WRL-00705][]
+- 1 x Nordic Serial Interface Board - [WRL-09019][]
+- 5 x LEDs
+- 5 x some variety of button
+- 1 x Arduino Pro Mini 3.3 volts - [DEV-09220][]
+
+Pinout
+-------------
+- 0 - 4: buttons listed in code
+- 5 - 7: LEDs listed in code
+- 8: CE
+- 9: unused
+- 10: CSN
+- 11: MOSI
+- 12: MISO
+- 13: SCK
+- VCC: VCC
+- GND: every ground ever
+- RAW: power in
+
+Notes
+-------------
+- LEDs for the volume up and down buttons should be joined together
+- LEDs for the skip and back buttons should be joined together
+- Ground is a pain in the ass
+
+[sparkfun]: http://www.sparkfun.com
+[WRL-00691]: http://www.sparkfun.com/products/691
+[WRL-00705]: http://www.sparkfun.com/products/705
+[WRL-09019]: http://www.sparkfun.com/products/9019
+[DEV-09220]: http://www.sparkfun.com/products/9220
