@@ -29,7 +29,7 @@ class AuralAPI(object):
             return self.dbs.p
     
     def current_user(self):
-        return cherrypy.request.wsgi_environ['REMOTE_USER'] if 'REMOTE_USER' in cherrypy.request.wsgi_environ else None
+        return cherrypy.request.wsgi_environ['REMOTE_USER'] if 'REMOTE_USER' in cherrypy.request.wsgi_environ else 'tester@TEST.COM'
     
     def log_event(self, zone, event):
         subprocess.call(["zwrite", "-d", "-c", "auralsex", "-i", "activity", "-s", "Aural Sex)  (%s in %s" % (self.current_user().split('@')[0], zone), "-m", event])
